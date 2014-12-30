@@ -45,3 +45,6 @@ classes
 deploy
 Iskdaemon_admin
 gwt-unitCache
+cscope.*
+tags
+
