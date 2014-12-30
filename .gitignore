@@ -47,4 +47,4 @@ Iskdaemon_admin
 gwt-unitCache
 cscope.*
 tags
-isk-db/*
+simdb
