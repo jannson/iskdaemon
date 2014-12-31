@@ -6,9 +6,11 @@ from whoosh.index import create_in, open_dir
 from whoosh.fields import *
 from whoosh.qparser import QueryParser
 from whoosh.fields import Schema, ID, TEXT, NUMERIC
-from whoosh.analysis import Tokenizer, Token 
+from whoosh.analysis import Tokenizer, Token
 from whoosh import query
 from whoosh.query import Every
+
+from xmlrpclib import Binary
 
 def group_words(s):
     regex = []
@@ -54,7 +56,7 @@ class SimpleDB(object):
         writer = self.ix.writer()
         writer.add_document(md5=md5, img=img, content=path)
         writer.commit()
-    
+
     def random(self, size):
         searcher = self.ix.searcher()
         total = searcher.doc_count()
@@ -62,25 +64,55 @@ class SimpleDB(object):
         page = 1
         if page_max > 2:
             page = randint(1, page_max)
-        return searcher.search_page(Every("content"), page, size)
+        results = searcher.search_page(Every("content"), page, size)
+        return self.parse_results(results)
 
-    def search(self, q):
+    def search(self, q, page = 1, size = 30):
         searcher = self.ix.searcher()
         parser = QueryParser("content", schema=self.ix.schema)
-        raw_results = searcher.search(parser.parse(q))
+        results = searcher.search_page(parser.parse(q), page, size)
+        return self.parse_results(results)
 
     def get(self, md5):
         searcher = self.ix.searcher()
-        return searcher.document(md5=md5)
+        it = searcher.document(md5=md5)
+        return {"md5": it["md5"], "img": it["img"], "path":it["content"]}
 
     def get_by_img(self, img):
         searcher = self.ix.searcher()
-        return searcher.document(img=img)
+        it = searcher.document(img=img)
+        return {"md5": it["md5"], "img": it["img"], "path":it["content"]}
+
+    def sim_imgs(self, simserver, imgdb, img, size=30):
+        imgs = simserver.queryImgID(imgdb, img, size)
+        items = []
+        for img,score in imgs:
+            item = self.get_by_img(img)
+            item['score'] = score
+            items.append(item)
+        return items
+
+    def sim_data(self, simserver, imgdb, data, size=30):
+        imgs = simserver.queryImgBlob(imgdb, Binary(data), size)
+        items = []
+        for img,score in imgs:
+            item = self.get_by_img(img)
+            item['score'] = score
+            items.append(item)
+        return items
+
+    def parse_results(self, results):
+        items = []
+        for it in results:
+            item = {}
+            item = {"md5": it["md5"], "img": it["img"], "path":it["content"]}
+            items.append(item)
+        return items
 
 simdb_path = "../simdb"
 if not os.path.exists(simdb_path):
     os.mkdir(simdb_path)
-simpledb = SimpleDB(simdb_path, True)
+simpledb = SimpleDB(simdb_path)
 #simpledb.save(u'aaa1', 2, u'水果世博园')
 #print simpledb.get_by_img(2)
 
@@ -89,7 +121,7 @@ for keyword in (u"水果世博园",u"你",u"first",u"中文",u"交换机",u"交�
     print "result of ",keyword
     q = parser.parse(keyword)
     results = searcher.search(q)
-    for hit in results:  
+    for hit in results:
         print hit.highlights("content")
     print "="*10
 '''

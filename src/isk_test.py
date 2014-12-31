@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 import os
 from os import listdir
 import StringIO
@@ -43,7 +44,8 @@ def upload(my_file, filename):
 
 max_cnt = 10000000
 cnt = 1
-server.createDb(2)
+imgdb = 1
+#server.createDb(imgdb)
 
 def index_image(folder, filename):
     global cnt
@@ -61,7 +63,7 @@ def index_image(folder, filename):
     simpledb.save(md5, cnt, path.decode('utf-8'))
 
     output.seek(0)
-    server.addImgBlob(2, cnt, Binary(output.getvalue()))
+    server.addImgBlob(imgdb, cnt, Binary(output.getvalue()))
     output.close()
 
 def index_image_folder(folder_path):
@@ -82,7 +84,12 @@ def index_image_folder(folder_path):
         elif os.path.isdir(path):
             index_image_folder(path)
 
-index_image_folder(image_folder)
-server.saveAllDbs()
+#index_image_folder(image_folder)
+#server.saveAllDbs()
 
-print server.queryImgID(2, 3)
+#print server.queryImgID(imgdb, 3)
+#results = simpledb.random(10)
+#results = simpledb.get_by_img(3)
+#for img in results:
+#    print img
+#print simpledb.sim_imgs(server, imgdb, 3)

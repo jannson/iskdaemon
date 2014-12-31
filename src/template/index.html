@@ -1,0 +1,113 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Toway 图片搜索</title>
+    <meta name="description" content="Toway 图片搜索">
+
+    <link href="{{ static_base_url }}/js/bootstrap.min.css" rel="stylesheet">
+    <script src="{{ static_base_url }}/js/jquery.min.js"></script>
+    <script src="{{ static_base_url }}/js/bootstrap.min.js"></script>
+    <script src="{{ static_base_url }}/js/demo.js"></script>
+</head>
+
+
+<body>
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">Toway 图片搜索</a>
+        </div>
+
+        <div class="collapse navbar-collapse">
+            <form class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                    <input type="text" id="txtSearch" name="url" class="form-control input-large" placeholder="Image URL|Keyword">
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" onclick="searchImg()">
+                        搜索
+                    </button>
+                    <span> :&nbsp;已知关键字：</span>
+				<a href="/?url='足迹'">足迹</a> :&nbsp; | :&nbsp;
+				<a href="/?url='足迹'">罗子</a> :&nbsp; | :&nbsp; 
+				<a href="/?url='足迹'">小甲岛</a> :&nbsp; | :&nbsp;
+				<a href="/?url='足迹'">二周年</a> :&nbsp; | :&nbsp;
+				<a href="/?url='足迹'">余争</a> :&nbsp; | :&nbsp;
+				<a href="/?url='足迹'">明星</a> :&nbsp; | :&nbsp;
+				<a href="/">TODO</a> :&nbsp; | :&nbsp;
+                </div>
+            </form>
+        </div>
+    </div>
+</nav>
+
+
+<div class="page-header">
+    {% if search_file_name or search_url or search_keyword %}
+    <h1><a href="/">获取随机图片</a> 相似的图片：
+        {% if search_file_name %}
+            <a href="{{ image_base_url }}/{{ md5 }}">{{ search_file_name }}</a>
+        {% elif search_keyword %}
+            Keyword: {{ search_keyword }}
+        {% elif search_url %}
+            <a href="{{ search_url }}">{{ search_url }}</a>
+        {% endif %}
+    {% else %}
+    <h1>随机图片</h1>
+    {% endif %}
+</div>
+<div class="container-fluid">
+    <div class="row">
+        {% for hit in search_result %}
+            {% set filename = hit['path'] %}
+            {% if (loop.index != 1) and ((loop.index -1) % 6) == 0 %}
+                </div>
+                <div class="row">
+            {% endif %}
+            <div class="col-md-2">
+                <div class="thumbnail">
+                    <img src="{{ image_base_url }}/{{ hit['md5'] }}?w=400&h=200" style="max-height: 200px">
+
+                    <p>
+                        File: {{ filename }}<br/>
+                        {% if search_file_name or search_url %}
+                        Score: {{ hit['score'] }}
+                        {% endif %}
+                    </p>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                            更多<span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href="/?img={{ hit['img'] }}">图片相似</a></li>
+                            <li><a href="javascript:;" onclick="searchURL();">描述相近</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function searchImg() {
+    key = $("#txtSearch").val();
+    if (key == "") {
+        window.location.href="/";
+    }
+    else {
+        window.location.href="/?url=" + key;
+    }
+}
+</script>
+
+<hr>
+<footer>
+    <p><a href="https://www.toway.me">All photos of two years</a></p>
+</footer>
+
+</body>
+</html>
