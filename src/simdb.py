@@ -9,6 +9,9 @@ from whoosh.fields import Schema, ID, TEXT, NUMERIC
 from whoosh.analysis import Tokenizer, Token
 from whoosh import query
 from whoosh.query import Every
+from whoosh.qparser.syntax import OrGroup
+
+import config
 
 from xmlrpclib import Binary
 
@@ -69,8 +72,10 @@ class SimpleDB(object):
 
     def search(self, q, page = 1, size = 30):
         searcher = self.ix.searcher()
-        parser = QueryParser("content", schema=self.ix.schema)
-        results = searcher.search_page(parser.parse(q), page, size)
+        parser = QueryParser("content", schema=self.ix.schema, group=OrGroup)
+        parser_rlt = parser.parse(q)
+        #print unicode(parser_rlt)
+        results = searcher.search_page(parser_rlt, page, size)
         return self.parse_results(results)
 
     def get(self, md5):
@@ -112,7 +117,12 @@ class SimpleDB(object):
 simdb_path = "../simdb"
 if not os.path.exists(simdb_path):
     os.mkdir(simdb_path)
-simpledb = SimpleDB(simdb_path)
+
+if config.IS_RELEASE:
+    simpledb = SimpleDB(simdb_path, False)
+else:
+    simpledb = SimpleDB(simdb_path, False)
+
 #simpledb.save(u'aaa1', 2, u'水果世博园')
 #print simpledb.get_by_img(2)
 

@@ -66,7 +66,7 @@ def queryImgID(dbId, id, numres=12, sketch=0, fast=False):
     @type  numres: number
     @param numres: Number of results to return. The target image is on the result list.
     @type  sketch: number
-    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images. 
+    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images.
     @type fast: boolean
     @param fast: if true, only the average color for each image is considered. Image geometry/features are ignored. Search is faster this way.
 
@@ -74,11 +74,11 @@ def queryImgID(dbId, id, numres=12, sketch=0, fast=False):
     @since: 0.7
     @change: 0.9.3: added parameter 'sketch'
     @return:  array of arrays: M{[[image id 1, score],[image id 2, score],[image id 3, score], ...]} (id is Integer, score is Double)
-    """    
+    """
     dbId = int(dbId)
     id = int(id)
     numres = int(numres)
-    
+
     # load balancing
     global ServiceFacadeInstance
     if settings.core.getboolean('cluster','isClustered') and not imgDB.isImageOnDB(dbId, id):
@@ -106,17 +106,17 @@ def queryImgBlob(dbId, data, numres=12, sketch=0, fast=False):
     @type  numres: number
     @param numres: Number of results to return. The target image is on the result list.
     @type  sketch: number
-    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images. 
+    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images.
     @type fast: boolean
     @param fast: if true, only the average color for each image is considered. Image geometry/features are ignored. Search is faster this way.
     @rtype:   array
-    
+
     @since: 0.9.3
     @return:  array of arrays: M{[[image id 1, score],[image id 2, score],[image id 3, score], ...]} (id is Integer, score is Double)
-    """    
+    """
     dbId = int(dbId)
     numres = int(numres)
-    
+
     return imgDB.queryImgBlob(dbId, data.data, numres,sketch,fast)
 
 def queryImgPath(dbId, path, numres=12, sketch=0, fast=False):
@@ -130,47 +130,48 @@ def queryImgPath(dbId, path, numres=12, sketch=0, fast=False):
     @type  numres: number
     @param numres: Number of results to return. The target image is on the result list.
     @type  sketch: number
-    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images. 
+    @param sketch: 0 for photographs, 1 for hand-sketched images or low-resolution vector images.
     @type fast: boolean
     @param fast: if true, only the average color for each image is considered. Image geometry/features are ignored. Search is faster this way.
     @rtype:   array
-    
+
     @since: 0.9.3
     @return:  array of arrays: M{[[image id 1, score],[image id 2, score],[image id 3, score], ...]} (id is Integer, score is Double)
-    """    
+    """
     dbId = int(dbId)
     numres = int(numres)
-    
+
     return imgDB.queryImgPath(dbId, path, numres,sketch,fast)
 
 def addImgBlob(dbId, id, data):
     """
-    Add image to database space. Image data is passed directly. It is then processed and indexed. 
+    Add image to database space. Image data is passed directly. It is then processed and indexed.
 
     @type  dbId: number
     @param dbId: Database space id.
     @type  id: number
     @param id: Target image id. The image located on filename will be indexed and from now on should be refered to isk-daemon as this supplied id.
-    @type  data: binary 
+    @type  data: binary
     @param data: Image binary data
     @rtype:   number
-    
+
     @since: 0.9.3
     @return:  1 in case of success.
     """
     dbId = int(dbId)
     id = int(id)
 
+    res = None
     try:
         #TODO id should be unsigned long int or something even bigger, also must review swig declarations
         res = imgDB.addImageBlob(dbId, data.data, id)
     except Exception, e:
         if str(e) == 'image already in db':
-            rootLog.warn(e)        
+            rootLog.warn(e)
         else:
             rootLog.error(e)
         return res
-    
+
     return res
 
 def addImg(dbId, id, filename, fileIsUrl=False):
@@ -186,7 +187,7 @@ def addImg(dbId, id, filename, fileIsUrl=False):
     @type  fileIsUrl: boolean
     @param fileIsUrl: if true, filename is interpreted as an HTTP url and the remote image it points to downloaded and saved to a temporary location (same directory where database file is) before being added to database.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  1 in case of success.
     """
@@ -203,13 +204,13 @@ def addImg(dbId, id, filename, fileIsUrl=False):
         res = imgDB.addImage(dbId, filename, id)
     except Exception, e:
         if str(e) == 'image already in db':
-            rootLog.warn(e)        
+            rootLog.warn(e)
         else:
             rootLog.error(e)
         return res
-    
-    if (fileIsUrl): os.remove(filename)    
-    
+
+    if (fileIsUrl): os.remove(filename)
+
     return res
 
 def saveDb(dbId):
@@ -220,10 +221,10 @@ def saveDb(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  1 in case of success.
-    """        
+    """
     dbId = int(dbId)
     return imgDB.savedb(dbId)
 
@@ -236,7 +237,7 @@ def saveDbAs(dbId, filename):
     @type  filename: string
     @param filename: Target filesystem full path of the file where data should be stored at. B{NOTE}: This data file contains a single database space and should be used for import/export purposes only. Do not try to load it with a call to L{loadAllDbs}.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  1 in case of success.
     """
@@ -252,11 +253,11 @@ def loadDb(dbId, filename):
     @type  filename: string
     @param filename: Target filesystem full path of the file where data is stored at. B{NOTE}: This data file contains a single database space and should be used for import/export purposes only. Do not try to load it with a call to L{loadAllDbs} and vice versa.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  dbId in case of success.
-    """    
-    dbId = int(dbId)    
+    """
+    dbId = int(dbId)
     return imgDB.loaddb(dbId, filename)
 
 def removeImg(dbId, id):
@@ -268,12 +269,12 @@ def removeImg(dbId, id):
     @type  id: number
     @param id: Target image id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  1 in case of success.
-    """    
+    """
     id = int(id)
-    dbId = int(dbId)    
+    dbId = int(dbId)
     return imgDB.removeImg(dbId, id)
 
 def resetDb(dbId):
@@ -283,11 +284,11 @@ def resetDb(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  1 in case of success.
-    """    
-    dbId = int(dbId)    
+    """
+    dbId = int(dbId)
     return imgDB.resetdb(dbId)
 
 def createDb(dbId):
@@ -297,33 +298,33 @@ def createDb(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  dbId in case of success
-    """    
+    """
     dbId = int(dbId)
     return imgDB.createdb(dbId)
-    
+
 def shutdownServer():
     """
     Request a shutdown of this server instance.
 
     @rtype:   number
-    
+
     @since: 0.7
     @return:  always M{1}
     """
     global hasShutdown
 
     if hasShutdown: return 1 # already went through a shutdown
-    
+
     if settings.core.getboolean('daemon','saveAllOnShutdown'):
             saveAllDbs()
             imgDB.closedb()
 
     rootLog.info("Shuting instance down...")
     from twisted.internet import reactor
-    reactor.callLater(1, reactor.stop) 
+    reactor.callLater(1, reactor.stop)
     hasShutdown = True
     return 1
 
@@ -334,10 +335,10 @@ def getDbImgCount(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  image count
-    """    
+    """
     dbId = int(dbId)
     return imgDB.getImgCount(dbId)
 
@@ -350,10 +351,10 @@ def isImgOnDb(dbId, id):
     @type  id: number
     @param id: Target image id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     id = int(id)
     return imgDB.isImageOnDB( dbId, id)
@@ -367,10 +368,10 @@ def getImgDimensions(dbId, id):
     @type  id: number
     @param id: Target image id.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array in the form M{[width, height]}
-    """    
+    """
     dbId = int(dbId)
     id = int(id)
     return imgDB.getImageDimensions(dbId, id)
@@ -386,10 +387,10 @@ def calcImgAvglDiff(dbId, id1, id2):
     @type  id2: number
     @param id2: Target image 2 id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  float representing difference. The smaller, the most similar.
-    """    
+    """
     dbId = int(dbId)
     id1 = int(id1)
     id2 = int(id2)
@@ -397,8 +398,8 @@ def calcImgAvglDiff(dbId, id1, id2):
 
 def calcImgDiff(dbId, id1,  id2):
     """
-    Return image similarity difference ratio. One value alone for an image pair doesn't mean much. These values should be compared pairwise against each other. 
-    
+    Return image similarity difference ratio. One value alone for an image pair doesn't mean much. These values should be compared pairwise against each other.
+
     The smaller the value between two images is (i.e. the more negative the value is), the more similar the 2 images are.
 
     Comparing one image against itself is a degenerate case and the value returned should be ignored.
@@ -410,14 +411,14 @@ def calcImgDiff(dbId, id1,  id2):
     @type  id2: number
     @param id2: Target image 2 id.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  float representing difference. The smaller, the most similar.
-    """    
+    """
     dbId = int(dbId)
     id1 = int(id1)
     id2 = int(id2)
-    
+
     return imgDB.calcDiff(dbId, id1,  id2)
 
 def getImgAvgl(dbId, id):
@@ -429,10 +430,10 @@ def getImgAvgl(dbId, id):
     @type  id: number
     @param id: Target image id.
     @rtype:   array of double
-    
+
     @since: 0.7
     @return:  values for YIQ color channels
-    """    
+    """
     dbId = int(dbId)
     id1 = int(id)
     return imgDB.getImageAvgl(dbId, id1)
@@ -442,10 +443,10 @@ def getDbList():
     Return list defined database spaces.
 
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of db space ids
-    """    
+    """
     return imgDB.getDBList()
 
 def getDbImgIdList(dbId):
@@ -455,11 +456,11 @@ def getDbImgIdList(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of image ids
-    """    
-    
+    """
+
     dbId = int(dbId)
     return imgDB.getImgIdList(dbId)
 
@@ -468,7 +469,7 @@ def getDbDetailedList():
     Return details for all database spaces.
 
     @rtype:   map
-    
+
     @since: 0.7
     @return:  map key is database space id (as an integer), associated value is array with [getImgCount,
                             queryCount,
@@ -484,8 +485,8 @@ def getDbDetailedList():
                             lastSaveTime,
                             fileName
                             ]
-    """    
-    
+    """
+
     return imgDB.getDBDetailedList()
 
 def saveAllDbsAs(path):
@@ -495,11 +496,11 @@ def saveAllDbsAs(path):
     @type  path: string
     @param path: Target filesystem full path of the file where data is stored at.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  total db spaces written
-    """    
-    
+    """
+
     return imgDB.savealldbs(path)
 
 
@@ -514,7 +515,7 @@ def addKeywordImg(dbId, imgId, hash):
     @type  hash: number
     @param hash: Keyword id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if operation was succesful
     """
@@ -529,7 +530,7 @@ def getIdsBloomFilter(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   bloom filter
-    
+
     @since: 0.7
     @return:  bloom filter containing all images on given db id.
     """
@@ -543,10 +544,10 @@ def getClusterKeywords(dbId, numClusters,keywords):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     return imgDB.getClusterKeywords(dbId, numClusters,keywords)
 
@@ -557,10 +558,10 @@ def getClusterDb(dbId, numClusters):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     return imgDB.getClusterDb(dbId, numClusters)
 
@@ -571,10 +572,10 @@ def getKeywordsPopular(dbId, numres):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     return imgDB.getKeywordsPopular(dbId, numres)
 
@@ -585,10 +586,10 @@ def getKeywordsVisualDistance(dbId, distanceType,  keywords):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     return imgDB.getKeywordsVisualDistance(dbId, distanceType,  keywords)
 
@@ -605,15 +606,15 @@ def getAllImgsByKeywords(dbId, numres, kwJoinType, keywords):
     @type  keywords: string
     @param keywords: comma separated list of keyword ids. An empty string will return random images.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of image ids
-    """    
+    """
     dbId = int(dbId)
     keywordIds = [int(x) for x in keywords.split(',') if len(x) > 0]
     if len(keywordIds) == 0:
         keywordIds=[0]
-    
+
     return imgDB.getAllImgsByKeywords(dbId, numres, kwJoinType, keywordIds)
 
 def queryImgIDFastKeywords(dbId, imgId, numres, kwJoinType, keywords):
@@ -631,10 +632,10 @@ def queryImgIDFastKeywords(dbId, imgId, numres, kwJoinType, keywords):
     @type  keywords: string
     @param keywords: comma separated list of keyword ids.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of arrays: M{[[image id 1, score],[image id 2, score],[image id 3, score], ...]} (id is Integer, score is Double)
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     keywordIds = [int(x) for x in keywords.split(',') if len(x) > 0]
@@ -654,12 +655,12 @@ def queryImgIDKeywords(dbId, imgId, numres, kwJoinType, keywords):
     @type  kwJoinType: number
     @param kwJoinType: logical operator for keywords: 1 for AND, 0 for OR
     @type  keywords: string
-    @param keywords: comma separated list of keyword ids. 
+    @param keywords: comma separated list of keyword ids.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of arrays: M{[[image id 1, score],[image id 2, score],[image id 3, score], ...]} (id is Integer, score is Double)
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     keywordIds = [int(x) for x in keywords.split(',') if len(x) > 0]
@@ -667,7 +668,7 @@ def queryImgIDKeywords(dbId, imgId, numres, kwJoinType, keywords):
 
 def mostPopularKeywords(dbId, imgs, excludedKwds, count, mode):
     """
-    Returns the most frequent keywords associated with a given set of images 
+    Returns the most frequent keywords associated with a given set of images
 
     @type  dbId: number
     @param dbId Database space id.
@@ -680,14 +681,14 @@ def mostPopularKeywords(dbId, imgs, excludedKwds, count, mode):
     @type  mode: number
     @param mode: ignored, will be used on future versions.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of keyword ids and frequencies: [kwd1_id, kwd1_freq, kwd2_id, kwd2_freq, ...]
-    """    
+    """
     dbId = int(dbId)
     excludedKwds = [int(x) for x in excludedKwds.split(',') if len(x) > 0]
     imgs = [int(x) for x in imgs.split(',') if len(x) > 0]
-    
+
     return imgDB.mostPopularKeywords(dbId, imgs, excludedKwds, count, mode)
 
 def getKeywordsImg(dbId, imgId):
@@ -699,10 +700,10 @@ def getKeywordsImg(dbId, imgId):
     @type  imgId: number
     @param imgId: Target image id.
     @rtype:   array
-    
+
     @since: 0.7
     @return:  array of keyword ids
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     return imgDB.getKeywordsImg(dbId, imgId)
@@ -710,7 +711,7 @@ def getKeywordsImg(dbId, imgId):
 def removeAllKeywordImg(dbId, imgId):
     """
     Remove all keyword associations this image has.
-    
+
     Known issue: keyword based queries will continue to consider the image to be associated to this keyword until the database is saved and restored.
 
     @type  dbId: number
@@ -718,10 +719,10 @@ def removeAllKeywordImg(dbId, imgId):
     @type  imgId: number
     @param imgId: Target image id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if operation succeeded
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     return imgDB.removeAllKeywordImg(dbId, imgId)
@@ -729,8 +730,8 @@ def removeAllKeywordImg(dbId, imgId):
 def removeKeywordImg(dbId, imgId, hash):
     """
     Remove the association of a keyword to an image
-    
-    Known issue: keyword based queries will continue to consider the image to be associated to this keyword until the database is saved and restored.    
+
+    Known issue: keyword based queries will continue to consider the image to be associated to this keyword until the database is saved and restored.
 
     @type  dbId: number
     @param dbId: Database space id.
@@ -739,10 +740,10 @@ def removeKeywordImg(dbId, imgId, hash):
     @type  hash: number
     @param hash: Keyword id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if operation succeeded
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     return imgDB.removeKeywordImg(dbId, imgId, hash)
@@ -758,10 +759,10 @@ def addKeywordsImg(dbId, imgId, hashes):
     @type  hashes: list of number
     @param hashes: Keyword hashes to associate
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if image id exists
-    """    
+    """
     dbId = int(dbId)
     imgId = int(imgId)
     return imgDB.addKeywordsImg(dbId, imgId, hashes)
@@ -777,11 +778,11 @@ def addDir(dbId, path, recurse):
     @type  recurse: number
     @param recurse: 1 if should visit recursively
     @rtype:   number
-    
+
     @since: 0.7
     @return:  count of images succesfully added
-    """    
-    
+    """
+
     dbId = int(dbId)
     return imgDB.addDir(dbId, path, recurse)
 
@@ -792,11 +793,11 @@ def loadAllDbsAs(path):
     @type  path: string
     @param path: Target filesystem full path of the file where data is stored at.
     @rtype:   number
-    
+
     @since: 0.7
     @return:  total db spaces read
-    """    
-    
+    """
+
     return imgDB.loadalldbs(path)
 
 def saveAllDbs():
@@ -804,11 +805,11 @@ def saveAllDbs():
     Persist all existing database spaces on the data file defined at the config file I{settings.py}
 
     @rtype:   number
-    
+
     @since: 0.7
     @return:  count of persisted db spaces
     """
-    
+
     return imgDB.savealldbs(settings.core.get('database','databasePath'))
 
 def loadAllDbs():
@@ -816,11 +817,11 @@ def loadAllDbs():
     Loads from disk all previously persisted database spaces on the data file defined at the config file I{settings.py}
 
     @rtype:   number
-    
+
     @since: 0.7
     @return:  count of persisted db spaces
-    """    
-    
+    """
+
     return imgDB.loadalldbs(settings.core.get('database','databasePath'))
 
 def removeDb(dbid):
@@ -828,11 +829,11 @@ def removeDb(dbid):
     Remove a database. All images associated with it are also removed.
 
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  true if succesful
-    """    
-    
+    """
+
     return imgDB.removeDb(dbid)
 
 def getGlobalServerStats():
@@ -840,19 +841,19 @@ def getGlobalServerStats():
     Return the most similar images to the supplied one.
 
     @rtype:   map
-    
+
     @since: 0.7
     @return:  key is stat name, value is value. Keys are ['isk-daemon uptime', 'Number of databases', 'Total memory usage', 'Resident memory usage', 'Stack memory usage']
-    """    
-    
+    """
+
     stats = {}
-    
+
     stats['isk-daemon uptime'] = statistics.human_readable(time.time() - daemonStartTime)
     stats['Number of databases'] = len(imgDB.getDBList())
     stats['Total memory usage'] = statistics.memory()
     stats['Resident memory usage'] = statistics.resident()
-    stats['Stack memory usage'] = statistics.stacksize()    
-    
+    stats['Stack memory usage'] = statistics.stacksize()
+
     return stats
 
 def isValidDb(dbId):
@@ -862,11 +863,11 @@ def isValidDb(dbId):
     @type  dbId: number
     @param dbId: Database space id.
     @rtype:   boolean
-    
+
     @since: 0.7
     @return:  True if exists
-    """    
-    
+    """
+
     dbId = int(dbId)
     return imgDB.isValidDB(dbId)
 
@@ -875,14 +876,14 @@ def getIskLog(window = 30):
     Returns the last lines of text in the iskdaemon instance log
 
     @type  window: number
-    @param window: number of lines to retrieve 
+    @param window: number of lines to retrieve
 
     @rtype:   string
     @return:  text block
     @since: 0.9.3
     """
     from utils import tail
-    
+
     return tail(open(settings.core.get('daemon','logPath')), window)
 
 CommonDatabaseFacadeFunctions = [
@@ -924,8 +925,8 @@ CommonDatabaseFacadeFunctions = [
                                  getKeywordsPopular,
                                  getClusterDb,
                                  getClusterKeywords,
-                                 getIdsBloomFilter,     
-                                 mostPopularKeywords,                                                             
+                                 getIdsBloomFilter,
+                                 mostPopularKeywords,
                                  getIskLog,
                                  queryImgBlob,
                                  queryImgPath,

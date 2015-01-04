@@ -740,6 +740,7 @@ std::vector<double> queryImgDataFiltered(const int dbId, Idx * sig1, Idx * sig2,
 		curResTmp = pqResults.top();
 		pqResults.pop();
 		if (curResTmp.score < 99999) {
+		    cout << curResTmp.id << " " << curResTmp.score << endl;
 			V.insert(V.end(), curResTmp.id);
 			V.insert(V.end(), curResTmp.score);
 		}
@@ -1278,10 +1279,10 @@ std::vector<double> queryImgIDKeywords(const int dbId, long int id, int numres, 
 		return std::vector<double>();
 	}
 
-	if (keywords.size() < 1) { 
+	if (keywords.size() < 1) {
 		cerr << "ERROR: At least one keyword must be supplied" << endl ;
-		return std::vector<double>();        
-	} 
+		return std::vector<double>();
+	}
 
 	// populate filter
 	intVectorIterator it = keywords.begin();

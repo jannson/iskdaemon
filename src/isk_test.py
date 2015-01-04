@@ -6,9 +6,10 @@ import requests
 from PIL import Image
 from xmlrpclib import ServerProxy, Binary
 from simdb import simpledb
+import config
 
 server = ServerProxy("http://localhost:31128/RPC")
-image_folder = "/home/janson/download/baidu-yun"
+image_folder = "/home/samba/share/testimg"
 
 def thumbnail(infile, max_width):
     try:
@@ -45,7 +46,8 @@ def upload(my_file, filename):
 max_cnt = 10000000
 cnt = 1
 imgdb = 1
-#server.createDb(imgdb)
+if not config.IS_RELEASE:
+    server.createDb(imgdb)
 
 def index_image(folder, filename):
     global cnt
@@ -84,8 +86,9 @@ def index_image_folder(folder_path):
         elif os.path.isdir(path):
             index_image_folder(path)
 
-#index_image_folder(image_folder)
-#server.saveAllDbs()
+if not config.IS_RELEASE:
+    index_image_folder(image_folder)
+    server.saveAllDbs()
 
 #print server.queryImgID(imgdb, 3)
 #results = simpledb.random(10)
@@ -93,3 +96,8 @@ def index_image_folder(folder_path):
 #for img in results:
 #    print img
 #print simpledb.sim_imgs(server, imgdb, 3)
+
+#print server.calcImgDiff(imgdb, 378, 852)
+#print server.calcImgDiff(imgdb, 378, 419)
+#print server.calcImgAvglDiff(imgdb, 378, 852)
+#print server.calcImgAvglDiff(imgdb, 378, 375)

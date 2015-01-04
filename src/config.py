@@ -20,3 +20,5 @@ IGNORE_EXIST = True
 IMAGE_EXTENSIONS = ["jpg", "png", 'jpeg']
 LOGGING_LEVEL = logging.DEBUG
 TEMPLATE_CACHE_DIR = None
+
+IS_RELEASE=True
