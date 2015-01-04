@@ -740,7 +740,7 @@ std::vector<double> queryImgDataFiltered(const int dbId, Idx * sig1, Idx * sig2,
 		curResTmp = pqResults.top();
 		pqResults.pop();
 		if (curResTmp.score < 99999) {
-		    cout << curResTmp.id << " " << curResTmp.score << endl;
+		    //cout << curResTmp.id << " " << curResTmp.score << endl;
 			V.insert(V.end(), curResTmp.id);
 			V.insert(V.end(), curResTmp.score);
 		}
