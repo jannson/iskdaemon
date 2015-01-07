@@ -121,7 +121,7 @@ if not os.path.exists(simdb_path):
 if config.IS_RELEASE:
     simpledb = SimpleDB(simdb_path, False)
 else:
-    simpledb = SimpleDB(simdb_path, False)
+    simpledb = SimpleDB(simdb_path, True)
 
 #simpledb.save(u'aaa1', 2, u'水果世博园')
 #print simpledb.get_by_img(2)

@@ -27,26 +27,27 @@ import logging
 
 logger = logging.getLogger('isk-daemon')
 
+currdir = os.path.dirname(os.path.realpath(__file__))
 # Defaults
 core = ConfigParser.SafeConfigParser({
     'startAsDaemon' : 'false',                     # run as background process on UNIX systems
     'basePort' : '31128',                          # base tcp port to start listening at for HTTP requests (admin interface, XML-RPC requests, etc)
     'debug' : 'true',                              # print debug messages to console
     'saveAllOnShutdown' : 'true',                  # automatically save all database spaces on server shutdown
-    'databasePath' : "~/isk-db",                 # file where to store database files
+    'databasePath' : os.path.realpath(os.path.join(currdir, "..", "..", "isk-db")),
     'saveInterval' : '120'    ,                    # seconds between each automatic database save
     'automaticSave' : 'false' ,                    # whether the database should be saved automatically
     'isClustered' : 'false'   ,                     # run in cluster mode ? If True, make sure subsequent settings are ok
-    'seedPeers' : 'isk2host:31128',                            
+    'seedPeers' : 'isk2host:31128',
     'bindHostname': 'isk1host' ,                 # hostname for this instance. Other instances may try to connect to this hostname
     'logPath': 'isk-daemon.log',
     'logDebug': 'true',
     })
 
 # read from many possible locations
-conffile = core.read(['isk-daemon.conf', 
-            os.path.expanduser('~/isk-daemon.conf'), 
-            "/etc/iskdaemon/isk-daemon.conf", 
+conffile = core.read(['isk-daemon.conf',
+            os.path.expanduser('~/isk-daemon.conf'),
+            "/etc/iskdaemon/isk-daemon.conf",
             #os.path.join(os.environ.get("ISKCONF"),'isk-daemon.conf'),
             ])
 
@@ -62,7 +63,7 @@ if os.name == 'nt': # fix windows stuff
 
 def setupLogging():
     # set up logging to file - see previous section for more details
-    if core.getboolean('daemon','logDebug'): 
+    if core.getboolean('daemon','logDebug'):
         llevel = logging.DEBUG
     else:
         llevel = logging.INFO
@@ -80,7 +81,7 @@ def setupLogging():
     console.setFormatter(formatter)
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
-    
+
 setupLogging()
 
 
