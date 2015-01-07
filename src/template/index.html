@@ -60,11 +60,11 @@
     {% if search_file_name or search_url or search_keyword %}
     <h5>
         {% if search_file_name %}
-            <a href="{{ image_base_url }}/{{ md5 }}">{{ search_file_name }}</a>
+           图片: <a href="{{ image_base_url }}/{{ md5 }}">{{ search_file_name }}</a>
         {% elif search_keyword %}
-            Keyword: {{ search_keyword }}
+            关键字: {{ search_keyword }}
         {% elif search_url %}
-            <a href="{{ search_url }}">{{ search_url }}</a>
+            图片: <a href="{{ search_url }}">{{ search_url }}</a>
         {% endif %}
      </h5>
     {% else %}
